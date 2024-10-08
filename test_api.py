@@ -5,15 +5,43 @@ ENDPOINT = "https://jsonplaceholder.typicode.com/"
 
 
 def test_create_post():
-    # Generate the payload
     payload = new_post_payload()
-
-    # Send the POST request and capture the response object
     create_post_response = create_post(payload)
-
-    # Now you can assert that the status code is 201 (which means the resource was created)
     assert create_post_response.status_code == 201
+    created_post = create_post_response.json()
+    assert created_post['title'] == payload['title']
+    assert created_post['body'] == payload['body']
+    assert created_post['userId'] == payload['userId']
 
+
+def test_update_post():
+    id = "1"
+    updated_payload = {
+        'title': 'Updated Title',
+        'body': 'Updated body content',
+        'userId': id
+    }
+
+    update_response = put_post_by_id(id, updated_payload)
+    assert update_response.status_code == 200
+
+    updated_post = update_response.json()
+    assert updated_post['title'] == updated_payload['title']
+    assert updated_post['body'] == updated_payload['body']
+    assert updated_post['userId'] == updated_payload['userId']
+
+
+def test_patch_post():
+    id = "1"
+    updated_payload = {
+        'title': 'patched Title'
+    }
+
+    update_response = patch_post_by_id(id, updated_payload)
+    assert update_response.status_code == 200
+    
+    updated_post = update_response.json()
+    assert updated_post['title'] == updated_payload['title']
 
 def create_post(payload):
     headers = {
@@ -36,6 +64,20 @@ def get_comments_by_post_id(postId):
     return requests.get(ENDPOINT + f"/posts/{postId}/comments")
 
 
+def put_post_by_id(id, updated_data):
+    headers = {'Content-type': 'application/json; charset=UTF-8'}
+    response = requests.put(
+        ENDPOINT + f"/posts/{id}", json=updated_data, headers=headers)
+    return response
+
+
+def patch_post_by_id(id, updated_data):
+    headers = {'Content-type': 'application/json; charset=UTF-8'}
+    response = requests.patch(
+        ENDPOINT + f"/posts/{id}", json=updated_data, headers=headers)
+    return response
+
+
 def new_post_payload():
     body = f'test_body_{uuid.uuid4().hex}'
     title = f'test_title_{uuid.uuid4().hex}'
@@ -44,3 +86,4 @@ def new_post_payload():
         "body": body,
         "userId": "1"
     }
+
