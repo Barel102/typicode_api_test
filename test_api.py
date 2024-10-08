@@ -39,9 +39,24 @@ def test_patch_post():
 
     update_response = patch_post_by_id(id, updated_payload)
     assert update_response.status_code == 200
-    
+
     updated_post = update_response.json()
     assert updated_post['title'] == updated_payload['title']
+
+
+def test_get_all_posts():
+    get_response = get_posts()
+    assert get_response.status_code == 200
+
+    posts = get_response.json()
+    assert isinstance(posts, list)
+
+    assert len(posts) > 0
+    first_post = posts[0]
+    assert 'title' in first_post
+    assert 'body' in first_post
+    assert 'userId' in first_post
+
 
 def create_post(payload):
     headers = {
@@ -86,4 +101,3 @@ def new_post_payload():
         "body": body,
         "userId": "1"
     }
-
